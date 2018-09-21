@@ -1,7 +1,4 @@
 {
-  "scripts": {
-    "postinstall": "bash libs.sh"
-  },
   "author": {
     "name": "Vadim Ruban",
     "email": "vadim.ruban@carusto.com"
