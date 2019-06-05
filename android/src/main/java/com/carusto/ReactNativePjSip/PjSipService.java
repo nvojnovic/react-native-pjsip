@@ -295,10 +295,20 @@ public class PjSipService extends Service {
         mAccounts.remove(account);
 
         // Remove transport
+        // This prevents the transport from being used by other accounts that are added in the future
+        // Commenting this out enables us to delete and add accounts multiple times on the same endpoint
+        // try {
+        //     mEndpoint.transportClose(account.getTransportId());
+        // } catch (Exception e) {
+        //     Log.w(TAG, "Failed to close transport for account", e);
+        // }
+
+        // proper implementation would be to shutdown the account (available from pjsip 2.8)
         try {
-            mEndpoint.transportClose(account.getTransportId());
+            // TODO: uncomment this after upgrade to pjsip 2.8
+            // account.shutdown();
         } catch (Exception e) {
-            Log.w(TAG, "Failed to close transport for account", e);
+            Log.w(TAG, "Failed to shutdown account", e);
         }
 
         // Remove account in PjSip
