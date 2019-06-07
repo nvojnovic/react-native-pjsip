@@ -419,19 +419,8 @@ public class PjSipService extends Service {
                 }
             }
 
-            CodecInfoVector codVect = mEndpoint.codecEnum();
-            JSONObject codecs = new JSONObject();
-
-            for(int i=0;i<codVect.size();i++){
-                CodecInfo codInfo = codVect.get(i);
-                String codId = codInfo.getCodecId();
-                short priority = codInfo.getPriority();
-                codecs.put(codId, priority);
-                codInfo.delete();
-            }
-
             JSONObject settings = mServiceConfiguration.toJson();
-            settings.put("codecs", codecs);
+            settings.put("codecs", this.getCodecSettings());
 
             mEmitter.fireStarted(intent, mAccounts, mCalls, settings);
         } catch (Exception error) {
@@ -898,7 +887,7 @@ public class PjSipService extends Service {
                 }
             }
 
-            mEmitter.fireIntentHandled(intent);
+            mEmitter.fireIntentHandled(intent, this.getCodecSettings());
         } catch (Exception e) {
             mEmitter.fireIntentHandled(intent, e);
         }
@@ -922,6 +911,26 @@ public class PjSipService extends Service {
         }
 
         throw new Exception("Call with specified \""+ id +"\" id not found");
+    }
+
+    private JSONObject getCodecSettings() {
+        try {
+            CodecInfoVector codVect = mEndpoint.codecEnum();
+            JSONObject codecs = new JSONObject();
+
+            for (int i = 0; i < codVect.size(); i++) {
+                CodecInfo codInfo = codVect.get(i);
+                String codId = codInfo.getCodecId();
+                short priority = codInfo.getPriority();
+                codecs.put(codId, priority);
+                codInfo.delete();
+            }
+
+            return codecs;
+        } catch (Exception error) {
+            Log.e(TAG, "Error while building codecs list", error);
+            throw new RuntimeException(error);
+        }
     }
 
     void emmitRegistrationChanged(PjSipAccount account, OnRegStateParam prm) {
