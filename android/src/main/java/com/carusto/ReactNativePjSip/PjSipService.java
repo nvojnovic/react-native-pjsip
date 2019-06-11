@@ -172,7 +172,7 @@ public class PjSipService extends Service {
             }
 
             epConfig.getMedConfig().setHasIoqueue(true);
-            epConfig.getMedConfig().setClockRate(8000);
+            epConfig.getMedConfig().setClockRate(getSampleRate());
             epConfig.getMedConfig().setQuality(4);
             epConfig.getMedConfig().setEcOptions(1);
             epConfig.getMedConfig().setEcTailLen(200);
@@ -912,6 +912,14 @@ public class PjSipService extends Service {
 
         throw new Exception("Call with specified \""+ id +"\" id not found");
     }
+
+    private long getSampleRate() {
+        Long defaultRate = 8000L;
+        AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        String sampleRateString = am.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE);
+        return (sampleRateString == null ? defaultRate : Integer.parseInt(sampleRateString));
+    }
+
 
     private JSONObject getCodecSettings() {
         try {
