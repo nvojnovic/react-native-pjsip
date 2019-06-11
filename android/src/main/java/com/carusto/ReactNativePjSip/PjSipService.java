@@ -50,6 +50,7 @@ import org.pjsip.pjsua2.pjmedia_orient;
 import org.pjsip.pjsua2.pjsip_inv_state;
 import org.pjsip.pjsua2.pjsip_status_code;
 import org.pjsip.pjsua2.pjsip_transport_type_e;
+import org.pjsip.pjsua2.pjsua_call_flag;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -613,13 +614,16 @@ public class PjSipService extends Service {
 
             if (settingsJson != null) {
                 CallSettingsDTO settingsDTO = CallSettingsDTO.fromJson(settingsJson);
-                CallSetting callSettings = new CallSetting();
+                CallSetting callSettings = callOpParam.getOpt();
 
                 if (settingsDTO.getAudioCount() != null) {
                     callSettings.setAudioCount(settingsDTO.getAudioCount());
                 }
                 if (settingsDTO.getVideoCount() != null) {
                     callSettings.setVideoCount(settingsDTO.getVideoCount());
+                    if (settingsDTO.getVideoCount() == 0) {
+                        callSettings.setFlag(pjsua_call_flag.PJSUA_CALL_INCLUDE_DISABLED_MEDIA.swigValue());
+                    }
                 }
                 if (settingsDTO.getFlag() != null) {
                     callSettings.setFlag(settingsDTO.getFlag());
