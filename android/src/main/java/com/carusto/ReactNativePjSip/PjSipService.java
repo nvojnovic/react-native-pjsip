@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.net.wifi.WifiManager;
 import android.os.Build;
@@ -15,6 +16,7 @@ import android.os.Looper;
 import android.os.PowerManager;
 import android.os.Process;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
@@ -965,15 +967,16 @@ public class PjSipService extends Service {
             return;
         }
 
-        /**
         // Automatically start application when incoming call received.
-        if (mAppHidden) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        Boolean isInForeground = preferences.getBoolean("app_foreground", false);
+        if(!isInForeground) {
             try {
                 String ns = getApplicationContext().getPackageName();
                 String cls = ns + ".MainActivity";
 
                 Intent intent = new Intent(getApplicationContext(), Class.forName(cls));
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.EXTRA_DOCK_STATE_CAR);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 intent.addCategory(Intent.CATEGORY_LAUNCHER);
                 intent.putExtra("foreground", true);
 
@@ -983,24 +986,26 @@ public class PjSipService extends Service {
             }
         }
 
-        job(new Runnable() {
-            @Override
-            public void run() {
-                // Brighten screen at least 10 seconds
-                PowerManager.WakeLock wl = mPowerManager.newWakeLock(
-                    PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.ON_AFTER_RELEASE | PowerManager.FULL_WAKE_LOCK,
-                    "incoming_call"
-                );
-                wl.acquire(10000);
+        try {
+            job(new Runnable() {
+                @Override
+                public void run() {
+                    // Brighten screen at least 10 seconds
+                    PowerManager.WakeLock wl = mPowerManager.newWakeLock(
+                            PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.ON_AFTER_RELEASE | PowerManager.FULL_WAKE_LOCK,
+                            "pjsip:incoming_call"
+                    );
+                    wl.acquire(10000);
 
-                if (mCalls.size() == 0) {
-                    mAudioManager.setSpeakerphoneOn(true);
+                    /* if (mCalls.size() == 0) {
+                        mAudioManager.setSpeakerphoneOn(true);
+                    } */
                 }
-            }
-        });
-        **/
+            });
+        } catch (Exception e) {
+            Log.d(TAG, "Failed to run Power Manager on received call", e);
+        }
 
-        // -----
         mCalls.add(call);
         mEmitter.fireCallReceivedEvent(call);
     }
@@ -1027,7 +1032,7 @@ public class PjSipService extends Service {
                 public void run() {
                     // Acquire wake lock
                     if (mIncallWakeLock == null) {
-                        mIncallWakeLock = mPowerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "incall");
+                        mIncallWakeLock = mPowerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "pjsip:incall");
                     }
                     if (!mIncallWakeLock.isHeld()) {
                         mIncallWakeLock.acquire();
