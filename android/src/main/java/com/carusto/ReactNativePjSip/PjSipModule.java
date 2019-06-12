@@ -1,6 +1,5 @@
 package com.carusto.ReactNativePjSip;
 
-import android.app.Activity;
 import android.content.Intent;
 
 import com.facebook.react.bridge.*;
@@ -63,7 +62,7 @@ public class PjSipModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void makeCall(int accountId, String destination, ReadableMap callSettings, ReadableMap msgData,  Callback callback) {
+    public void makeCall(int accountId, String destination, ReadableMap callSettings, ReadableMap msgData, Callback callback) {
         int callbackId = receiver.register(callback);
         Intent intent = PjActions.createMakeCallIntent(callbackId, accountId, destination, callSettings, msgData, getReactApplicationContext());
         getReactApplicationContext().startService(intent);
@@ -157,6 +156,12 @@ public class PjSipModule extends ReactContextBaseJavaModule {
     public void dtmfCall(int callId, String digits, Callback callback) {
         int callbackId = receiver.register(callback);
         Intent intent = PjActions.createDtmfCallIntent(callbackId, callId, digits, getReactApplicationContext());
+        getReactApplicationContext().startService(intent);
+    }
+
+    @ReactMethod
+    public void changeOrientation(String orientation) {
+        Intent intent = PjActions.createChangeOrientationIntent(orientation, getReactApplicationContext());
         getReactApplicationContext().startService(intent);
     }
 

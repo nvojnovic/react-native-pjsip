@@ -26,9 +26,6 @@ import com.carusto.ReactNativePjSip.dto.ServiceConfigurationDTO;
 import com.carusto.ReactNativePjSip.dto.SipMessageDTO;
 import com.carusto.ReactNativePjSip.utils.ArgumentUtils;
 
-import com.facebook.react.bridge.ReadableMap;
-import com.facebook.react.bridge.ReadableMapKeySetIterator;
-
 import org.json.JSONObject;
 import org.pjsip.pjsua2.AccountConfig;
 import org.pjsip.pjsua2.AudDevManager;
@@ -46,7 +43,6 @@ import org.pjsip.pjsua2.StringVector;
 import org.pjsip.pjsua2.TransportConfig;
 import org.pjsip.pjsua2.CodecInfoVector;
 import org.pjsip.pjsua2.CodecInfo;
-import org.pjsip.pjsua2.VideoDevInfo;
 import org.pjsip.pjsua2.pj_qos_type;
 import org.pjsip.pjsua2.pjmedia_orient;
 import org.pjsip.pjsua2.pjsip_inv_state;
@@ -167,7 +163,7 @@ public class PjSipService extends Service {
             if (mServiceConfiguration.isUserAgentNotEmpty()) {
                 epConfig.getUaConfig().setUserAgent(mServiceConfiguration.getUserAgent());
             } else {
-                epConfig.getUaConfig().setUserAgent("React Native PjSip ("+ mEndpoint.libVersion().getFull() +")");
+                epConfig.getUaConfig().setUserAgent("React Native PjSip (" + mEndpoint.libVersion().getFull() + ")");
             }
 
             if (mServiceConfiguration.isStunServersNotEmpty()) {
@@ -226,7 +222,7 @@ public class PjSipService extends Service {
             mAudioManager = (AudioManager) getApplicationContext().getSystemService(AUDIO_SERVICE);
             mPowerManager = (PowerManager) getApplicationContext().getSystemService(POWER_SERVICE);
             mWifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-            mWifiLock = mWifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, this.getPackageName()+"-wifi-call-lock");
+            mWifiLock = mWifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, this.getPackageName() + "-wifi-call-lock");
             mWifiLock.setReferenceCounted(false);
             mTelephonyManager = (TelephonyManager) getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
             mGSMIdle = mTelephonyManager.getCallState() == TelephonyManager.CALL_STATE_IDLE;
@@ -340,7 +336,7 @@ public class PjSipService extends Service {
             return;
         }
 
-        Log.d(TAG, "Handle \""+ intent.getAction() +"\" action ("+ ArgumentUtils.dumpIntentExtraParameters(intent) +")");
+        Log.d(TAG, "Handle \"" + intent.getAction() + "\" action (" + ArgumentUtils.dumpIntentExtraParameters(intent) + ")");
 
         switch (intent.getAction()) {
             // General actions
@@ -401,6 +397,9 @@ public class PjSipService extends Service {
                 break;
             case PjActions.ACTION_DTMF_CALL:
                 handleCallDtmf(intent);
+            case PjActions.ACTION_CHANGE_ORIENTATION:
+                handleChangeOrientation(intent);
+                break;
             case PjActions.ACTION_CHANGE_CODEC_SETTINGS:
                 handleChangeCodecSettings(intent);
                 break;
@@ -423,7 +422,7 @@ public class PjSipService extends Service {
             }
 
             JSONObject settings = mServiceConfiguration.toJson();
-            settings.put("codecs", this.getCodecSettings());
+            settings.put("codecs", getCodecSettings());
 
             mEmitter.fireStarted(intent, mAccounts, mCalls, settings);
         } catch (Exception error) {
@@ -473,7 +472,7 @@ public class PjSipService extends Service {
             }
 
             if (account == null) {
-                throw new Exception("Account with \""+ accountId +"\" id not found");
+                throw new Exception("Account with \"" + accountId + "\" id not found");
             }
 
             account.register(renew);
@@ -490,11 +489,11 @@ public class PjSipService extends Service {
 
         // General settings
         AuthCredInfo cred = new AuthCredInfo(
-            "Digest",
-            configuration.getNomalizedRegServer(),
-            configuration.getUsername(),
-            0,
-            configuration.getPassword()
+                "Digest",
+                configuration.getNomalizedRegServer(),
+                configuration.getUsername(),
+                0,
+                configuration.getPassword()
         );
 
         String idUri = configuration.getIdUri();
@@ -544,7 +543,7 @@ public class PjSipService extends Service {
                     transportId = mTlsTransportId;
                     break;
                 default:
-                    Log.w(TAG, "Illegal \""+ configuration.getTransport() +"\" transport (possible values are UDP, TCP or TLS) use TCP instead");
+                    Log.w(TAG, "Illegal \"" + configuration.getTransport() + "\" transport (possible values are UDP, TCP or TLS) use TCP instead");
                     break;
             }
         }
@@ -591,7 +590,7 @@ public class PjSipService extends Service {
             }
 
             if (account == null) {
-                throw new Exception("Account with \""+ accountId +"\" id not found");
+                throw new Exception("Account with \"" + accountId + "\" id not found");
             }
 
             evict(account);
@@ -874,6 +873,39 @@ public class PjSipService extends Service {
         }
     }
 
+    private void handleChangeOrientation(Intent intent) {
+        String orientation = intent.getStringExtra("orientation");
+        try {
+            pjmedia_orient pjmediaOrientation;
+
+            switch (orientation) {
+                case "PJMEDIA_ORIENT_ROTATE_270DEG":   // Portrait
+                    pjmediaOrientation = pjmedia_orient.PJMEDIA_ORIENT_ROTATE_270DEG;
+                    break;
+                case "PJMEDIA_ORIENT_NATURAL":  // Landscape, home button on the right
+                    pjmediaOrientation = pjmedia_orient.PJMEDIA_ORIENT_NATURAL;
+                    break;
+                case "PJMEDIA_ORIENT_ROTATE_90DEG":
+                    pjmediaOrientation = pjmedia_orient.PJMEDIA_ORIENT_ROTATE_90DEG;
+                    break;
+                case "PJMEDIA_ORIENT_ROTATE_180DEG": // Landscape, home button on the left
+                    pjmediaOrientation = pjmedia_orient.PJMEDIA_ORIENT_ROTATE_180DEG;
+                    break;
+                default:
+                    pjmediaOrientation = pjmedia_orient.PJMEDIA_ORIENT_UNKNOWN;
+            }
+            if (pjmediaOrientation != pjmedia_orient.PJMEDIA_ORIENT_UNKNOWN) {
+                // TODO: set orientation to the correct current device (find active call and check which camera is used)
+                // For now we set the orientation for all video devices.
+                for (int i = (int) mEndpoint.vidDevManager().getDevCount() - 1; i >= 0; i--) {
+                    mEndpoint.vidDevManager().setCaptureOrient(i, pjmediaOrientation, true);
+                }
+            }
+        } catch (Exception iex) {
+            Log.e(TAG, "Error while changing video orientation");
+        }
+    }
+
     private void handleChangeCodecSettings(Intent intent) {
         try {
             Bundle codecSettings = intent.getExtras();
@@ -893,7 +925,7 @@ public class PjSipService extends Service {
                 }
             }
 
-            mEmitter.fireIntentHandled(intent, this.getCodecSettings());
+            mEmitter.fireIntentHandled(intent, getCodecSettings());
         } catch (Exception e) {
             mEmitter.fireIntentHandled(intent, e);
         }
@@ -906,7 +938,7 @@ public class PjSipService extends Service {
             }
         }
 
-        throw new Exception("Account with specified \""+ id +"\" id not found");
+        throw new Exception("Account with specified \"" + id + "\" id not found");
     }
 
     private PjSipCall findCall(int id) throws Exception {
@@ -916,7 +948,7 @@ public class PjSipService extends Service {
             }
         }
 
-        throw new Exception("Call with specified \""+ id +"\" id not found");
+        throw new Exception("Call with specified \"" + id + "\" id not found");
     }
 
     private long getSampleRate() {
@@ -970,7 +1002,7 @@ public class PjSipService extends Service {
         // Automatically start application when incoming call received.
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         Boolean isInForeground = preferences.getBoolean("app_foreground", false);
-        if(!isInForeground) {
+        if (!isInForeground) {
             try {
                 String ns = getApplicationContext().getPackageName();
                 String cls = ns + ".MainActivity";

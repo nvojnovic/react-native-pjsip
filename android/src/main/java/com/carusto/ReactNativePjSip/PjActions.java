@@ -23,7 +23,8 @@ public class PjActions {
 
     public static final String ACTION_START = "start";
     public static final String ACTION_CREATE_ACCOUNT = "account_create";
-    public static final String ACTION_CHANGE_CODEC_SETTINGS= "change_codec_settings'";
+    public static final String ACTION_CHANGE_ORIENTATION = "change_orientation";
+    public static final String ACTION_CHANGE_CODEC_SETTINGS = "change_codec_settings'";
     public static final String ACTION_REGISTER_ACCOUNT = "account_register";
     public static final String ACTION_DELETE_ACCOUNT = "account_delete";
     public static final String ACTION_MAKE_CALL = "call_make";
@@ -241,6 +242,14 @@ public class PjActions {
         return intent;
     }
 
+    public static Intent createChangeOrientationIntent(String orientation, Context context) {
+        Intent intent = new Intent(context, PjSipService.class);
+        intent.setAction(PjActions.ACTION_CHANGE_ORIENTATION);
+        intent.putExtra("orientation", orientation);
+
+        return intent;
+    }
+
     public static Intent createChangeCodecSettingsIntent(int callbackId, ReadableMap codecSettings, Context context) {
         Intent intent = new Intent(context, PjSipService.class);
         intent.setAction(PjActions.ACTION_CHANGE_CODEC_SETTINGS);
@@ -277,7 +286,7 @@ public class PjActions {
                     intent.putExtra(key, (Serializable) formatMap(configuration.getMap(key)));
                     break;
                 default:
-                    Log.w(TAG, "Unable to put extra information for intent: unknown type \""+ configuration.getType(key) +"\"");
+                    Log.w(TAG, "Unable to put extra information for intent: unknown type \"" + configuration.getType(key) + "\"");
                     break;
             }
         }
@@ -310,7 +319,7 @@ public class PjActions {
                     value.put(mapKey, formatMap(map.getMap(mapKey)));
                     break;
                 default:
-                    Log.w(TAG, "Unable to put extra information for intent: unknown type \""+ map.getType(mapKey) +"\"");
+                    Log.w(TAG, "Unable to put extra information for intent: unknown type \"" + map.getType(mapKey) + "\"");
                     break;
             }
         }
