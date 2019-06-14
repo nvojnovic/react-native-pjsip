@@ -96,6 +96,8 @@ public class PjSipService extends Service {
 
     private PowerManager.WakeLock mIncallWakeLock;
 
+    private PowerManager.WakeLock mWakeLock;
+
     private TelephonyManager mTelephonyManager;
 
     private WifiManager mWifiManager;
@@ -183,19 +185,19 @@ public class PjSipService extends Service {
             // Configure transports
             {
                 TransportConfig transportConfig = new TransportConfig();
-                transportConfig.setQosType(pj_qos_type.PJ_QOS_TYPE_VOICE);
+                transportConfig.setQosType(pj_qos_type.PJ_QOS_TYPE_VIDEO);
                 mUdpTransportId = mEndpoint.transportCreate(pjsip_transport_type_e.PJSIP_TRANSPORT_UDP, transportConfig);
                 mTrash.add(transportConfig);
             }
             {
                 TransportConfig transportConfig = new TransportConfig();
-                transportConfig.setQosType(pj_qos_type.PJ_QOS_TYPE_VOICE);
+                transportConfig.setQosType(pj_qos_type.PJ_QOS_TYPE_VIDEO);
                 mTcpTransportId = mEndpoint.transportCreate(pjsip_transport_type_e.PJSIP_TRANSPORT_TCP, transportConfig);
                 mTrash.add(transportConfig);
             }
             {
                 TransportConfig transportConfig = new TransportConfig();
-                transportConfig.setQosType(pj_qos_type.PJ_QOS_TYPE_VOICE);
+                transportConfig.setQosType(pj_qos_type.PJ_QOS_TYPE_VIDEO);
                 mTlsTransportId = mEndpoint.transportCreate(pjsip_transport_type_e.PJSIP_TRANSPORT_TLS, transportConfig);
                 mTrash.add(transportConfig);
             }
@@ -230,6 +232,9 @@ public class PjSipService extends Service {
             IntentFilter phoneStateFilter = new IntentFilter(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
             registerReceiver(mPhoneStateChangedReceiver, phoneStateFilter);
 
+            mWakeLock = mPowerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, getClass().getSimpleName());
+            mWakeLock.acquire();
+
             mInitialized = true;
 
             job(new Runnable() {
@@ -257,6 +262,8 @@ public class PjSipService extends Service {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             mWorkerThread.quitSafely();
         }
+
+        mWakeLock.release();
 
         try {
             if (mEndpoint != null) {
@@ -556,7 +563,7 @@ public class PjSipService extends Service {
             cfg.getSipConfig().setProxies(v);
         }
 
-        cfg.getMediaConfig().getTransportConfig().setQosType(pj_qos_type.PJ_QOS_TYPE_VOICE);
+        cfg.getMediaConfig().getTransportConfig().setQosType(pj_qos_type.PJ_QOS_TYPE_VIDEO);
 
         cfg.getVideoConfig().setAutoShowIncoming(true);
         cfg.getVideoConfig().setAutoTransmitOutgoing(true);
