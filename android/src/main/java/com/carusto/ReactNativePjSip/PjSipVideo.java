@@ -94,6 +94,28 @@ public abstract class PjSipVideo extends ViewGroup implements SurfaceHolder.Call
         }
 
         MediaSize size = videoWindow.getInfo().getSize();
+        int videoWidth = (int) size.getW();
+        int videoHeight = (int) size.getH();
+
+        Log.d(TAG, "resize to video width-" + videoWidth);
+        Log.d(TAG, "resize to video height-" + videoHeight);
+        Log.d(TAG, "resize to layoutWidth-" + layoutWidth);
+        Log.d(TAG, "resize to layoutHeight-" + layoutHeight);
+
+        // This will center and contain video within the parent (cover fit maybe later)
+        if (layoutWidth * videoHeight > layoutHeight * videoWidth) {
+            int scaledWidth = videoWidth * layoutHeight / videoHeight;
+            surfaceView.layout((layoutWidth - scaledWidth) / 2, 0,
+                    (layoutWidth + scaledWidth) / 2, layoutHeight);
+        } else {
+            int scaledHeight = videoHeight * layoutWidth / videoWidth;
+            surfaceView.layout(0, (layoutHeight - scaledHeight) / 2,
+                    layoutWidth, (layoutHeight + scaledHeight) / 2);
+        }
+
+        // This calculation was producing wrong sizes
+        // Probably correct when video fills entire screen
+        /* MediaSize size = videoWindow.getInfo().getSize();
         int height;
         int width;
 
@@ -146,7 +168,7 @@ public abstract class PjSipVideo extends ViewGroup implements SurfaceHolder.Call
             offsetTop,
             offsetLeft + width,
             offsetTop + height
-        );
+        ); */
     }
 
     @Override
