@@ -175,8 +175,8 @@ public class PjSipService extends Service {
             epConfig.getMedConfig().setHasIoqueue(true);
             epConfig.getMedConfig().setClockRate(getSampleRate());
             epConfig.getMedConfig().setQuality(4);
-            epConfig.getMedConfig().setEcOptions(1);
-            epConfig.getMedConfig().setEcTailLen(200);
+            epConfig.getMedConfig().setEcOptions(0);
+            epConfig.getMedConfig().setEcTailLen(0);
             epConfig.getMedConfig().setThreadCnt(2);
             mEndpoint.libInit(epConfig);
 
