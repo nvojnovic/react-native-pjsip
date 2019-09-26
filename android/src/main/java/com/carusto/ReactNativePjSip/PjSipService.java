@@ -1,6 +1,7 @@
 package com.carusto.ReactNativePjSip;
 
 import android.app.Service;
+import android.app.Notification;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -25,6 +26,7 @@ import com.carusto.ReactNativePjSip.dto.CallSettingsDTO;
 import com.carusto.ReactNativePjSip.dto.ServiceConfigurationDTO;
 import com.carusto.ReactNativePjSip.dto.SipMessageDTO;
 import com.carusto.ReactNativePjSip.utils.ArgumentUtils;
+import com.carusto.ReactNativePjSip.utils.NotificationUtils;
 
 import org.json.JSONObject;
 import org.pjsip.pjsua2.AccountConfig;
@@ -254,7 +256,7 @@ public class PjSipService extends Service {
             });
         }
 
-        return START_NOT_STICKY;
+        return START_REDELIVER_INTENT;
     }
 
     @Override
@@ -426,6 +428,13 @@ public class PjSipService extends Service {
                 if (!newServiceConfiguration.equals(mServiceConfiguration)) {
                     updateServiceConfiguration(newServiceConfiguration);
                 }
+            }
+
+            if(intent.hasExtra("notification")) {
+                Map notificationConfig = (Map) intent.getSerializableExtra("notification");
+                Notification notification = NotificationUtils.buildNotification(getApplicationContext(), notificationConfig);
+                int notificationId = Integer.parseInt(notificationConfig.get("id").toString());
+                startForeground(notificationId, notification);
             }
 
             JSONObject settings = mServiceConfiguration.toJson();
