@@ -75,6 +75,8 @@ public class PjSipService extends Service {
 
     private int mTlsTransportId;
 
+    private Map mForegroundServiceNotificationConfig;
+
     private ServiceConfigurationDTO mServiceConfiguration = new ServiceConfigurationDTO();
 
     private PjSipLogWriter mLogWriter;
@@ -256,7 +258,7 @@ public class PjSipService extends Service {
             });
         }
 
-        return START_REDELIVER_INTENT;
+        return START_STICKY;
     }
 
     @Override
@@ -431,10 +433,7 @@ public class PjSipService extends Service {
             }
 
             if(intent.hasExtra("notification")) {
-                Map notificationConfig = (Map) intent.getSerializableExtra("notification");
-                Notification notification = NotificationUtils.buildNotification(getApplicationContext(), notificationConfig);
-                int notificationId = Integer.parseInt(notificationConfig.get("id").toString());
-                startForeground(notificationId, notification);
+                mForegroundServiceNotificationConfig = (Map) intent.getSerializableExtra("notification");
             }
 
             JSONObject settings = mServiceConfiguration.toJson();
@@ -466,6 +465,12 @@ public class PjSipService extends Service {
         try {
             AccountConfigurationDTO accountConfiguration = AccountConfigurationDTO.fromIntent(intent);
             PjSipAccount account = doAccountCreate(accountConfiguration);
+
+            if(mForegroundServiceNotificationConfig != null) {
+                Notification notification = NotificationUtils.buildNotification(getApplicationContext(), mForegroundServiceNotificationConfig);
+                int notificationId = Integer.parseInt(mForegroundServiceNotificationConfig.get("id").toString());
+                startForeground(notificationId, notification);
+            }
 
             // Emmit response
             mEmitter.fireAccountCreated(intent, account);
@@ -610,6 +615,10 @@ public class PjSipService extends Service {
             }
 
             evict(account);
+
+            if(mAccounts.size() == 0) {
+                stopForeground(true);
+            }
 
             // -----
             mEmitter.fireIntentHandled(intent);
