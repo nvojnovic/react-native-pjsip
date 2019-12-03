@@ -100,8 +100,6 @@ public class PjSipService extends Service {
 
     private PowerManager.WakeLock mIncallWakeLock;
 
-    private PowerManager.WakeLock mWakeLock;
-
     private TelephonyManager mTelephonyManager;
 
     private WifiManager mWifiManager;
@@ -236,9 +234,6 @@ public class PjSipService extends Service {
             IntentFilter phoneStateFilter = new IntentFilter(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
             registerReceiver(mPhoneStateChangedReceiver, phoneStateFilter);
 
-            mWakeLock = mPowerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, getClass().getSimpleName());
-            mWakeLock.acquire();
-
             mInitialized = true;
 
             job(new Runnable() {
@@ -267,8 +262,6 @@ public class PjSipService extends Service {
             mWorkerThread.quitSafely();
         }
 
-        mWakeLock.release();
-
         try {
             if (mEndpoint != null) {
                 mEndpoint.libDestroy();
@@ -278,7 +271,11 @@ public class PjSipService extends Service {
             Log.w(TAG, "Failed to destroy PjSip library", e);
         }
 
-        unregisterReceiver(mPhoneStateChangedReceiver);
+        try {
+            unregisterReceiver(mPhoneStateChangedReceiver);
+        } catch (Exception e) {
+            Log.w(TAG, "Error Unregistering PhoneStateChangedReceiver", e);
+        }
 
         super.onDestroy();
     }
