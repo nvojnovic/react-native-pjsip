@@ -36,6 +36,11 @@ public class PjSipPreviewVideo extends PjSipVideo {
                 windowPreview.start(op);
                 return windowPreview.getVideoWindow();
             }
+
+            @Override
+            public void stop() throws Exception {
+                windowPreview.stop();
+            }
         });
     }
 }

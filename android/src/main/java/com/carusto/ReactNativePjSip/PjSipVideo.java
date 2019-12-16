@@ -192,6 +192,10 @@ public abstract class PjSipVideo extends ViewGroup implements SurfaceHolder.Call
 
     @Override
     public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
-        // Nothing
+        try {
+            this.videoWindowHandler.stop();
+        } catch (Exception e) {
+            Log.e(TAG, "An error occurs during stopping video", e);
+        }
     }
 }

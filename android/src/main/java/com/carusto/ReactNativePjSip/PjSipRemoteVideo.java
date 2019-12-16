@@ -46,6 +46,11 @@ public class PjSipRemoteVideo extends PjSipVideo implements PjSipVideoMediaChang
                 videoWindow.setWindow(handle);
                 return videoWindow;
             }
+
+            @Override
+            public void stop() throws Exception {
+                // Nothing
+            }
         });
     }
 
