@@ -580,6 +580,8 @@ public class PjSipService extends Service {
         cfg.getVideoConfig().setAutoShowIncoming(true);
         cfg.getVideoConfig().setAutoTransmitOutgoing(true);
 
+        mEndpoint.vidDevManager().refreshDevs();
+
         int cap_dev = cfg.getVideoConfig().getDefaultCaptureDevice();
         mEndpoint.vidDevManager().setCaptureOrient(cap_dev, pjmedia_orient.PJMEDIA_ORIENT_ROTATE_270DEG, true);
 
