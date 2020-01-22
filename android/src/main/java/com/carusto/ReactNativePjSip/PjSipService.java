@@ -108,6 +108,8 @@ public class PjSipService extends Service {
 
     private boolean mGSMIdle;
 
+    private boolean mVideoDevicesRefreshed;
+
     private BroadcastReceiver mPhoneStateChangedReceiver = new PhoneStateChangedReceiver();
 
     public PjSipBroadcastEmiter getEmitter() {
@@ -580,7 +582,10 @@ public class PjSipService extends Service {
         cfg.getVideoConfig().setAutoShowIncoming(true);
         cfg.getVideoConfig().setAutoTransmitOutgoing(true);
 
-        mEndpoint.vidDevManager().refreshDevs();
+        if(!mVideoDevicesRefreshed) {
+            mEndpoint.vidDevManager().refreshDevs();
+            mVideoDevicesRefreshed = true;
+        }
 
         int cap_dev = cfg.getVideoConfig().getDefaultCaptureDevice();
         mEndpoint.vidDevManager().setCaptureOrient(cap_dev, pjmedia_orient.PJMEDIA_ORIENT_ROTATE_270DEG, true);
