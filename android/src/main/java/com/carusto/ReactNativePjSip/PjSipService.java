@@ -100,6 +100,8 @@ public class PjSipService extends Service {
 
     private PowerManager.WakeLock mIncallWakeLock;
 
+    private PowerManager.WakeLock mWakeLock;
+
     private TelephonyManager mTelephonyManager;
 
     private WifiManager mWifiManager;
@@ -236,6 +238,9 @@ public class PjSipService extends Service {
             IntentFilter phoneStateFilter = new IntentFilter(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
             registerReceiver(mPhoneStateChangedReceiver, phoneStateFilter);
 
+            mWakeLock = mPowerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, getClass().getSimpleName());
+            mWakeLock.acquire();
+
             mInitialized = true;
 
             job(new Runnable() {
@@ -262,6 +267,10 @@ public class PjSipService extends Service {
     public void onDestroy() {
         if (mWorkerThread != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             mWorkerThread.quitSafely();
+        }
+
+        if (mWakeLock != null && mWakeLock.isHeld()) {
+            mWakeLock.release();
         }
 
         try {
