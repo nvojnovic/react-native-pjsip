@@ -1040,7 +1040,7 @@ public class PjSipService extends Service {
 
         // Automatically start application when incoming call received.
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        Boolean isInForeground = preferences.getBoolean("app_foreground", false);
+        Boolean isInForeground = preferences.getBoolean("app_foreground", true);
         if (!isInForeground) {
             try {
                 String ns = getApplicationContext().getPackageName();
