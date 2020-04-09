@@ -15,7 +15,7 @@ Pod::Spec.new do |s|
   s.source       = { :git => package["repository"]["url"], :tag => "without-postinstall" }
   s.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'PJ_AUTOCONF=1' }
   s.vendored_frameworks = 'ios/VialerPJSIP.framework'
-  s.source_files  = "ios/**/*.{h,m}"
+  s.source_files  = "ios/RTCPjSip/*.{h,m}"
 
   s.dependency 'React'
 end
