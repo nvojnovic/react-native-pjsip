@@ -4,12 +4,16 @@ import android.content.Intent;
 
 import com.facebook.react.bridge.*;
 
+import org.pjsip.PjCameraInfo;
+
 public class PjSipModule extends ReactContextBaseJavaModule {
 
     private static PjSipBroadcastReceiver receiver;
 
     public PjSipModule(ReactApplicationContext context) {
         super(context);
+
+        PjCameraInfo.setContext(context);
 
         // Module could be started several times, but we have to register receiver only once.
         if (receiver == null) {
