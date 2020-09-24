@@ -29,6 +29,7 @@ import com.carusto.ReactNativePjSip.utils.ArgumentUtils;
 import com.carusto.ReactNativePjSip.utils.NotificationUtils;
 
 import org.json.JSONObject;
+import org.pjsip.PjCameraInfo;
 import org.pjsip.pjsua2.AccountConfig;
 import org.pjsip.pjsua2.AudDevManager;
 import org.pjsip.pjsua2.AuthCredInfo;
@@ -217,6 +218,8 @@ public class PjSipService extends Service {
 
     @Override
     public int onStartCommand(final Intent intent, int flags, int startId) {
+        PjCameraInfo.setContext(this);
+        
         if (!mInitialized) {
             if (intent != null && intent.hasExtra("service")) {
                 mServiceConfiguration = ServiceConfigurationDTO.fromMap((Map) intent.getSerializableExtra("service"));
