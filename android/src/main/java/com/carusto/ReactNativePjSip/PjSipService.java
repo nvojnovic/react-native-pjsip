@@ -193,12 +193,14 @@ public class PjSipService extends Service {
             {
                 TransportConfig transportConfig = new TransportConfig();
                 transportConfig.setQosType(pj_qos_type.PJ_QOS_TYPE_VOICE);
+                transportConfig.setPort(5060);
                 mUdpTransportId = mEndpoint.transportCreate(pjsip_transport_type_e.PJSIP_TRANSPORT_UDP, transportConfig);
                 mTrash.add(transportConfig);
             }
             {
                 TransportConfig transportConfig = new TransportConfig();
                 transportConfig.setQosType(pj_qos_type.PJ_QOS_TYPE_VOICE);
+                transportConfig.setPort(5060);
                 mTcpTransportId = mEndpoint.transportCreate(pjsip_transport_type_e.PJSIP_TRANSPORT_TCP, transportConfig);
                 mTrash.add(transportConfig);
             }

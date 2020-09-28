@@ -97,6 +97,7 @@
         // Init transport config structure
         pjsua_transport_config cfg;
         pjsua_transport_config_default(&cfg);
+        // cfg.port = 5060;
         pjsua_transport_id id;
 
         // Add TCP transport.
@@ -113,6 +114,7 @@
     {
         pjsua_transport_config cfg;
         pjsua_transport_config_default(&cfg);
+        // cfg.port = 5060;
         pjsua_transport_id id;
         
         status = pjsua_transport_create(PJSIP_TRANSPORT_TCP, &cfg, &id);
@@ -150,6 +152,9 @@
     NSMutableArray *accountsResult = [[NSMutableArray alloc] initWithCapacity:[@([self.accounts count]) unsignedIntegerValue]];
     NSMutableArray *callsResult = [[NSMutableArray alloc] initWithCapacity:[@([self.calls count]) unsignedIntegerValue]];
     NSDictionary *settingsResult = @{ @"codecs": [self getCodecs] };
+
+    // pjsua_acc_id local_acc;
+    // pjsua_acc_add_local(self.udpTransportId, true, &local_acc);
 
     for (NSString *key in self.accounts) {
         PjSipAccount *acc = self.accounts[key];
