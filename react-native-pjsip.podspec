@@ -17,5 +17,5 @@ Pod::Spec.new do |s|
   s.vendored_frameworks = 'ios/VialerPJSIP.framework'
   s.source_files  = "ios/RTCPjSip/*.{h,m}"
 
-  s.dependency 'React'
+  s.dependency 'React-Core'
 end
