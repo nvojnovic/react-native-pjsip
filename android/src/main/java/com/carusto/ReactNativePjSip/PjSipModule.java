@@ -1,8 +1,13 @@
 package com.carusto.ReactNativePjSip;
 
 import android.content.Intent;
+import android.os.Build;
 
-import com.facebook.react.bridge.*;
+import com.facebook.react.bridge.Callback;
+import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.bridge.ReactContextBaseJavaModule;
+import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableMap;
 
 public class PjSipModule extends ReactContextBaseJavaModule {
 
@@ -29,7 +34,6 @@ public class PjSipModule extends ReactContextBaseJavaModule {
     public void start(ReadableMap configuration, Callback callback) {
         int id = receiver.register(callback);
         Intent intent = PjActions.createStartIntent(id, configuration, getReactApplicationContext());
-
         getReactApplicationContext().startService(intent);
     }
 
@@ -44,7 +48,11 @@ public class PjSipModule extends ReactContextBaseJavaModule {
     public void createAccount(ReadableMap configuration, Callback callback) {
         int id = receiver.register(callback);
         Intent intent = PjActions.createAccountCreateIntent(id, configuration, getReactApplicationContext());
-        getReactApplicationContext().startService(intent);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            getReactApplicationContext().startForegroundService(intent);
+        } else {
+            getReactApplicationContext().startService(intent);
+        }
     }
 
     @ReactMethod
