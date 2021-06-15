@@ -1,7 +1,6 @@
 package com.carusto.ReactNativePjSip;
 
 import android.content.Intent;
-import android.os.Build;
 
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -48,11 +47,7 @@ public class PjSipModule extends ReactContextBaseJavaModule {
     public void createAccount(ReadableMap configuration, Callback callback) {
         int id = receiver.register(callback);
         Intent intent = PjActions.createAccountCreateIntent(id, configuration, getReactApplicationContext());
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            getReactApplicationContext().startForegroundService(intent);
-        } else {
-            getReactApplicationContext().startService(intent);
-        }
+        getReactApplicationContext().startService(intent);
     }
 
     @ReactMethod
