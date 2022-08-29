@@ -238,7 +238,7 @@ public class PjSipService extends Service {
             mWifiLock = mWifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, this.getPackageName() + "-wifi-call-lock");
             mWifiLock.setReferenceCounted(false);
             mTelephonyManager = (TelephonyManager) getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
-            mGSMIdle = mTelephonyManager.getCallState() == TelephonyManager.CALL_STATE_IDLE;
+            mGSMIdle = Build.VERSION.SDK_INT < Build.VERSION_CODES.S ? mTelephonyManager.getCallState() == TelephonyManager.CALL_STATE_IDLE : true;
 
             IntentFilter phoneStateFilter = new IntentFilter(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
             registerReceiver(mPhoneStateChangedReceiver, phoneStateFilter);
