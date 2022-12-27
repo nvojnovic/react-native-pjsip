@@ -22,7 +22,11 @@ public class NotificationUtils {
             return null;
         }
         Intent notificationIntent = new Intent(context, mainActivityClass);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
+        int pendingFlags = PendingIntent.FLAG_UPDATE_CURRENT;
+         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            pendingFlags |= PendingIntent.FLAG_IMMUTABLE;
+        }
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, pendingFlags);
 
         Notification.Builder notificationBuilder;
 
